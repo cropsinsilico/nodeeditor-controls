@@ -1,14 +1,20 @@
 <script setup lang="ts">
+import { ref, onMounted } from 'vue';
 import type * as Rete from "rete";
 import type { EventsTypes } from "rete/types/events";
-import { defineComponent } from "vue";
+import { defineProps, withDefaults } from 'vue';
 
-export interface Props {
+interface Option {
+  text: string;
+  value: string;
+}
+
+interface Props {
   ikey: string;
-  options?: { text: string; value: string }[];
+  options?: Option[];
   reteEmitter?: Rete.Emitter<EventsTypes> | undefined;
-  reteGetData?: (ikey: string) => number;
-  retePutData?: (ikey: string, value: number) => void;
+  reteGetData?: (ikey: string) => string;
+  retePutData?: (ikey: string, value: string) => void;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -17,44 +23,35 @@ const props = withDefaults(defineProps<Props>(), {
     { text: "y_dimension", value: "y_dimension" },
     { text: "z_dimension", value: "z_dimension" },
   ],
-  reteGetData: (ikey: string) => 0,
-  retePutData: (ikey: string, value: number) => {
+  reteGetData: (ikey: string) => "",
+  retePutData: (ikey: string, value: string) => {
     return;
   },
   reteEmitter: undefined,
 });
 
-const emits = defineEmits([]);
-</script>
+let currentValue = ref(props.options[0].value)
 
-<script lang="ts">
-export default defineComponent({
-  data() {
-    return {
-      currentValue: undefined,
-    };
-  },
-  methods: {
-    change(e: Event) {
-      this.update();
-    },
-    update() {
-      if (this.ikey) {
-        this.retePutData?.(this.ikey, this.currentValue);
-      }
-      this.reteEmitter?.trigger("process");
-    },
-    mounted() {
-      this.currentValue = this.options[0];
-      if (this.ikey && this.reteGetData)
-        this.currentValue = this.reteGetData(this.ikey);
-    },
-  },
-});
+const change = (e: Event) => {
+  currentValue.value = (e.target as HTMLSelectElement).value;
+  update();
+}
+
+const update = () => {
+  if (props.ikey) {
+    props.retePutData?.(props.ikey, currentValue.value);
+  }
+  props.reteEmitter?.trigger("process");
+}
+
+onMounted(() => {
+  if (props.ikey && props.reteGetData)
+    currentValue.value = props.reteGetData(props.ikey);
+})
 </script>
 
 <template>
-  <select v-model="currentValue" @input="change($event)">
+  <select v-model="currentValue" @change="change">
     <option v-for="option in options" :key="option.value" :value="option.value">
       {{ option.text }}
     </option>

@@ -1,9 +1,10 @@
 <script setup lang="ts">
+import { ref, watchEffect } from 'vue';
 import type * as Rete from "rete";
 import type { EventsTypes } from "rete/types/events";
-import { defineComponent } from "vue";
+import { defineProps, withDefaults } from 'vue';
 
-export interface Props {
+interface Props {
   initialValue: number;
   ikey: string;
   reteEmitter?: Rete.Emitter<EventsTypes> | undefined;
@@ -19,35 +20,26 @@ const props = withDefaults(defineProps<Props>(), {
   reteEmitter: undefined,
 });
 
-const emits = defineEmits([]);
+let currentValue = ref(props.initialValue ?? 0)
+
+const change = (e: Event) => {
+  currentValue.value = +(e.target as HTMLInputElement).value;
+  update();
+}
+
+const update = () => {
+  if (props.ikey) {
+    props.retePutData?.(props.ikey, currentValue.value);
+  }
+  props.reteEmitter?.trigger("process");
+}
+
+watchEffect(() => {
+  if (props.ikey && props.reteGetData)
+    currentValue.value = props.reteGetData(props.ikey);
+})
 </script>
 
-<script lang="ts">
-export default defineComponent({
-  data() {
-    return {
-      currentValue: this.initialValue === undefined ? 0 : this.initialValue,
-    };
-  },
-  methods: {
-    change(e: Event) {
-      this.currentValue = +(e.target as HTMLInputElement).value;
-      this.update();
-    },
-    update() {
-      if (this.ikey) {
-        this.retePutData?.(this.ikey, this.currentValue);
-      }
-      this.reteEmitter?.trigger("process");
-    },
-    mounted() {
-      this.currentValue = 0;
-      if (this.ikey && this.reteGetData)
-        this.currentValue = this.reteGetData(this.ikey);
-    },
-  },
-});
-</script>
 <template>
   <input
     type="number"
