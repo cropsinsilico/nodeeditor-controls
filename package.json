@@ -1,5 +1,5 @@
 {
-  "name": "nodeeditor-controls",
+  "name": "@data-exp-lab/nodeeditor-controls",
   "version": "1.0.0",
   "description": "VueJS controls for jupyterlab-nodeeditor",
   "main": "lib/index.js",
