@@ -2,7 +2,6 @@
 import { ref, watchEffect } from 'vue';
 import type * as Rete from "rete";
 import type { EventsTypes } from "rete/types/events";
-import { defineProps, withDefaults } from 'vue';
 
 interface Props {
   initialValue: string;
@@ -35,8 +34,10 @@ const update = () => {
 }
 
 watchEffect(() => {
-  if (props.ikey && props.reteGetData)
-    currentValue.value = props.reteGetData(props.ikey).toString();
+  if (props.ikey && props.reteGetData) {
+    const data = props.reteGetData(props.ikey);
+    currentValue.value = data !== undefined ? data.toString() : '';
+  }
 })
 </script>
 

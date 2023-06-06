@@ -2,7 +2,6 @@
 import { ref, watchEffect } from 'vue';
 import type * as Rete from "rete";
 import type { EventsTypes } from "rete/types/events";
-import { defineProps, withDefaults } from 'vue';
 
 interface Props {
   initialValue: number;
