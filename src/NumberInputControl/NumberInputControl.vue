@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watchEffect } from 'vue';
+import { ref, watchEffect } from "vue";
 import type * as Rete from "rete";
 import type { EventsTypes } from "rete/types/events";
 
@@ -19,24 +19,33 @@ const props = withDefaults(defineProps<Props>(), {
   reteEmitter: undefined,
 });
 
-let currentValue = ref(props.initialValue ?? 0)
+const currentValue = ref(+(props.initialValue ?? 0));
 
+//detect any changes happen from the interface
 const change = (e: Event) => {
   currentValue.value = +(e.target as HTMLInputElement).value;
   update();
-}
+};
 
 const update = () => {
   if (props.ikey) {
     props.retePutData?.(props.ikey, currentValue.value);
   }
-  props.reteEmitter?.trigger("process");
-}
+  // props.reteEmitter?.trigger("process");
+};
 
+// this will monitor any potentail changes to the ikey
+// which come from python
 watchEffect(() => {
-  if (props.ikey && props.reteGetData)
-    currentValue.value = props.reteGetData(props.ikey);
-})
+  if (props.ikey) {
+    emit("update:currentValue", currentValue.value);
+  }
+});
+
+const emit = defineEmits(["update:currentValue"]);
+defineExpose({
+  currentValue,
+});
 </script>
 
 <template>

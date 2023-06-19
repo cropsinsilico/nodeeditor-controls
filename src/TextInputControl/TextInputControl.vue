@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watchEffect } from 'vue';
+import { ref, watchEffect } from "vue";
 import type * as Rete from "rete";
 import type { EventsTypes } from "rete/types/events";
 
@@ -19,26 +19,29 @@ const props = withDefaults(defineProps<Props>(), {
   reteEmitter: undefined,
 });
 
-let currentValue = ref(props.initialValue || "")
+const currentValue = ref("" + (props.initialValue || ""));
 
 const change = (e: Event) => {
   currentValue.value = (e.target as HTMLInputElement).value;
   update();
-}
+};
 
 const update = () => {
   if (props.ikey) {
     props.retePutData?.(props.ikey, Number(currentValue.value));
   }
-  props.reteEmitter?.trigger("process");
-}
+  // props.reteEmitter?.trigger("process");
+};
+
+const emit = defineEmits(["update:currentValue"]);
+defineExpose({ currentValue });
 
 watchEffect(() => {
   if (props.ikey && props.reteGetData) {
     const data = props.reteGetData(props.ikey);
-    currentValue.value = data !== undefined ? data.toString() : '';
+    emit("update:currentValue", data !== undefined ? data.toString() : "");
   }
-})
+});
 </script>
 
 <template>
