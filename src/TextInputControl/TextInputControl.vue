@@ -19,7 +19,7 @@ const props = withDefaults(defineProps<Props>(), {
   reteEmitter: undefined,
 });
 
-let currentValue = ref(props.initialValue || "")
+const currentValue = ref(props.initialValue || "");
 
 const change = (e: Event) => {
   currentValue.value = (e.target as HTMLInputElement).value;
@@ -30,13 +30,15 @@ const update = () => {
   if (props.ikey) {
     props.retePutData?.(props.ikey, Number(currentValue.value));
   }
-  props.reteEmitter?.trigger("process");
+  // props.reteEmitter?.trigger("process");
 }
+
+const emit = defineEmits(['update:initialValue'])
 
 watchEffect(() => {
   if (props.ikey && props.reteGetData) {
     const data = props.reteGetData(props.ikey);
-    currentValue.value = data !== undefined ? data.toString() : '';
+    emit('update:initialValue', data !== undefined ? data.toString() : '');
   }
 })
 </script>
