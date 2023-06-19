@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, onMounted } from "vue";
 import type * as Rete from "rete";
 import type { EventsTypes } from "rete/types/events";
 
@@ -29,24 +29,26 @@ const props = withDefaults(defineProps<Props>(), {
   reteEmitter: undefined,
 });
 
-let currentValue = ref(props.options[0].value)
+const currentValue = ref("" + props.options[0].value);
 
 const change = (e: Event) => {
   currentValue.value = (e.target as HTMLSelectElement).value;
   update();
-}
+};
 
 const update = () => {
   if (props.ikey) {
     props.retePutData?.(props.ikey, currentValue.value);
   }
   props.reteEmitter?.trigger("process");
-}
+};
 
 onMounted(() => {
   if (props.ikey && props.reteGetData)
     currentValue.value = props.reteGetData(props.ikey);
-})
+});
+
+defineExpose({ currentValue });
 </script>
 
 <template>
